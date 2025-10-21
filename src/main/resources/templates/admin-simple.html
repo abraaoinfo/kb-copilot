@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Simple</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <p>Document Count: <span th:text="${documentCount}">0</span></p>
+    <p>Has Documents: <span th:text="${hasDocuments}">false</span></p>
+    <p>Request ID: <span th:text="${requestId}">N/A</span></p>
+    
+    <div th:if="${hasDocuments}">
+        <h2>Documents:</h2>
+        <ul>
+            <li th:each="document : ${documents}">
+                <strong th:text="${document.titulo}">Title</strong> - 
+                <span th:text="${document.tipoFonte}">Type</span>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
+
+

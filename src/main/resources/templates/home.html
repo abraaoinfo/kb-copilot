@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KB Copilot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+                <a class="navbar-brand" href="/">KB Copilot</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item" th:if="${!#authentication.isAuthenticated()}">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item" th:if="${#authentication.isAuthenticated()}">
+                        <a class="nav-link" href="/admin">Admin</a>
+                    </li>
+                    <li class="nav-item" th:if="${#authentication.isAuthenticated()}">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                            <h2 class="mb-0">KB Copilot - Sistema de Consulta Inteligente</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Sistema RAG completo usando Spring Boot 3.5.6, Spring AI, PostgreSQL com pgvector, 
+                            Spring Security e Thymeleaf.
+                        </p>
+                        <div class="alert alert-info">
+                            <strong>Status do Sistema:</strong> 
+                            <span th:if="${hasDocuments}" class="text-success">
+                                Pronto - <span th:text="${documentCount}"></span> documentos disponíveis
+                            </span>
+                            <span th:unless="${hasDocuments}" class="text-warning">
+                                Nenhum documento ingerido ainda
+                            </span>
+                        </div>
+                        <div class="text-center mt-4">
+                            <a th:if="${!#authentication.isAuthenticated()}" href="/login" class="btn btn-primary btn-lg">Login</a>
+                            <a th:if="${#authentication.isAuthenticated()}" href="/admin" class="btn btn-success btn-lg">Painel Admin</a>
+                            <a href="/ask" class="btn btn-info btn-lg ms-2">
+                                <i class="fas fa-question-circle me-1"></i>
+                                Perguntar
+                            </a>
+                        </div>
+                        <div class="mt-3">
+                            <h5>Funcionalidades Implementadas:</h5>
+                            <ul>
+                                <li>✅ Spring Boot 3.5.6 com Java 25</li>
+                                <li>✅ Spring AI + OpenAI GPT-3.5-turbo</li>
+                                <li>✅ PostgreSQL com extensão pgvector</li>
+                                <li>✅ Spring Security com form-login</li>
+                                <li>✅ Thymeleaf com Bootstrap 5</li>
+                                <li>✅ Lombok para redução de boilerplate</li>
+                                <li>✅ Testes com Testcontainers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Documentos Disponíveis -->
+                <div class="card mt-4" th:if="${hasDocuments}">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>
+                            Documentos Disponíveis (<span th:text="${documentCount}">0</span>)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div th:each="document : ${documents}" class="col-md-6 mb-3">
+                                <div class="card border-start border-4" 
+                                     th:classappend="${document.tipoFonte == 'PDF' ? 'border-danger' : 'border-success'}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="card-title mb-1" th:text="${document.titulo}">Título</h6>
+                                            <span class="badge" 
+                                                  th:classappend="${document.tipoFonte == 'PDF' ? 'bg-danger' : 'bg-success'}"
+                                                  th:text="${document.tipoFonte}">TIPO</span>
+                                        </div>
+                                        <p class="card-text small text-muted mb-2" 
+                                           th:text="${#strings.abbreviate(document.conteudo, 100)}">
+                                            Conteúdo do documento...
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            <span th:text="${#temporals.format(document.criadoEm, 'dd/MM/yyyy HH:mm')}">Data</span>
+                                            <span th:if="${document.nomeFonte != null}" class="ms-2">
+                                                <i class="fas fa-file me-1"></i>
+                                                <span th:text="${document.nomeFonte}">Arquivo</span>
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - KB Copilot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .section-title {
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>
+                Spring AI RAG - Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home me-1"></i>
+                    Início
+                </a>
+                <a class="nav-link" href="/ask">
+                    <i class="fas fa-question-circle me-1"></i>
+                    Perguntar
+                </a>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt me-1"></i>
+                    Sair
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <!-- Stats Card -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-database me-2"></i>
+                            <span th:text="${documentCount}">0</span>
+                        </h3>
+                        <p class="card-text">Documentos no Sistema</p>
+                        <a href="/admin/documents" class="btn btn-light btn-sm">
+                            <i class="fas fa-list me-1"></i>
+                            Ver Documentos
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-brain me-2"></i>
+                            RAG Ativo
+                        </h3>
+                        <p class="card-text">Sistema de Consulta Inteligente</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-plus me-2"></i>
+                            Adicionar
+                        </h3>
+                        <p class="card-text">Novos Documentos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- Text Document Ingestion -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-text me-2"></i>
+                            Inserir Documento de Texto
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/ingest}" method="post">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Título do Documento</label>
+                                <input type="text" class="form-control" id="title" name="title" required
+                                       placeholder="Ex: Introdução ao Spring AI">
+                            </div>
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Conteúdo</label>
+                                <textarea class="form-control" id="content" name="content" rows="6" required
+                                          placeholder="Digite o conteúdo do documento aqui..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-upload me-2"></i>
+                                Inserir Documento
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF Document Ingestion -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-pdf me-2"></i>
+                            Upload de Documento PDF
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/ingest-pdf}" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="pdfTitle" class="form-label">Título do Documento</label>
+                                <input type="text" class="form-control" id="pdfTitle" name="title" required
+                                       placeholder="Ex: Manual do Usuário">
+                            </div>
+                            <div class="mb-3">
+                                <label for="pdfFile" class="form-label">Arquivo PDF</label>
+                                <input type="file" class="form-control" id="pdfFile" name="file" accept=".pdf" required>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Apenas arquivos PDF são aceitos. O texto será extraído automaticamente.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>
+                                Upload PDF
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Documentos -->
+        <div class="row mt-4" th:if="${hasDocuments}">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Documentos Ingeridos (<span th:text="${documentCount}">0</span>)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div th:each="document : ${documents}" class="col-md-6 col-lg-4 mb-3">
+                                <div class="card border-start border-4" 
+                                     th:classappend="${document.tipoFonte == 'PDF' ? 'border-danger' : 'border-success'}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="card-title mb-1" th:text="${document.titulo}">Título</h6>
+                                            <span class="badge" 
+                                                  th:classappend="${document.tipoFonte == 'PDF' ? 'bg-danger' : 'bg-success'}"
+                                                  th:text="${document.tipoFonte}">TIPO</span>
+                                        </div>
+                                        <p class="card-text small text-muted mb-2" 
+                                           th:text="${#strings.abbreviate(document.conteudo, 150)}">
+                                            Conteúdo do documento...
+                                        </p>
+                                        <div class="text-muted small">
+                                            <div><strong>ID:</strong> <span th:text="${document.id}"></span></div>
+                                            <div><strong>Criado em:</strong> <span th:text="${#temporals.format(document.criadoEm, 'dd/MM/yyyy HH:mm')}"></span></div>
+                                            <div th:if="${document.nomeFonte != null}">
+                                                <strong>Arquivo:</strong> <span th:text="${document.nomeFonte}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensagem quando não há documentos -->
+        <div class="row mt-4" th:unless="${hasDocuments}">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Nenhum documento encontrado</h5>
+                        <p class="text-muted">Use os formulários acima para ingerir documentos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Instruções de Uso
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-1 me-2 text-primary"></i>Inserir Documentos</h6>
+                                <p class="small">Use os formulários acima para inserir documentos de texto ou fazer upload de PDFs.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-2 me-2 text-success"></i>Processamento Automático</h6>
+                                <p class="small">Os documentos são automaticamente processados e indexados no sistema de vetores.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-3 me-2 text-warning"></i>Consultas Inteligentes</h6>
+                                <p class="small">Após a inserção, os documentos estarão disponíveis para consultas via RAG.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Information -->
+        <div class="mt-4 text-center">
+            <small class="text-muted">
+                Request ID: <span th:text="${requestId}">N/A</span>
+            </small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

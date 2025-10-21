@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos - Spring AI RAG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .document-card { border-left: 4px solid #007bff; }
+        .document-card.pdf { border-left-color: #dc3545; }
+        .document-card.text { border-left-color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-database"></i>
+                    Documentos na Base de Dados
+                </h1>
+                
+                <div class="alert alert-info">
+                    <strong>Total de documentos:</strong> <span th:text="${count}">0</span>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger">
+                    <span th:text="${error}"></span>
+                </div>
+                
+                <div class="row" th:if="${documents != null and !documents.empty}">
+                    <div th:each="document : ${documents}" class="col-md-6 col-lg-4 mb-4">
+                        <div class="card document-card" th:classappend="${document.tipoFonte == 'PDF' ? 'pdf' : 'text'}">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${document.titulo}">Título</h5>
+                                <p class="card-text">
+                                    <span class="badge" th:classappend="${document.tipoFonte == 'PDF' ? 'bg-danger' : 'bg-success'}"
+                                          th:text="${document.tipoFonte}">TIPO</span>
+                                </p>
+                                <p class="card-text small" th:text="${#strings.abbreviate(document.conteudo, 200)}">
+                                    Conteúdo...
+                                </p>
+                                <div class="text-muted small">
+                                    <strong>ID:</strong> <span th:text="${document.id}"></span><br>
+                                    <strong>Criado em:</strong> <span th:text="${#temporals.format(document.criadoEm, 'dd/MM/yyyy HH:mm')}"></span><br>
+                                    <span th:if="${document.nomeFonte != null}">
+                                        <strong>Arquivo:</strong> <span th:text="${document.nomeFonte}"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div th:if="${documents == null or documents.empty}" class="text-center py-5">
+                    <h4 class="text-muted">Nenhum documento encontrado</h4>
+                    <p class="text-muted">Adicione documentos através do painel administrativo.</p>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary">Voltar ao Início</a>
+                    <a href="/admin" class="btn btn-secondary">Painel Admin</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+

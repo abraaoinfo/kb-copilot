@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: aiapp-postgres
+    environment:
+      POSTGRES_DB: aiapp
+      POSTGRES_USER: aiapp
+      POSTGRES_PASSWORD: aiapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - aiapp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  aiapp-network:
+    driver: bridge

@@ -1,0 +1,131 @@
+spring:
+  application:
+    name: kb-copilot
+  
+  # Virtual Threads
+  threads:
+    virtual:
+      enabled: true
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aiapp
+    username: aiapp
+    password: aiapp
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # Spring AI Configuration
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+          max-tokens: 1000
+      embedding:
+        options:
+          model: text-embedding-3-small
+          dimensions: 1536
+    
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+        table-name: vector_store
+        remove-existing-vector-store-table: false
+
+  # Security Configuration
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
+
+# Server Configuration
+server:
+  port: 8080
+
+# Management and Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging Configuration with MDC
+logging:
+  level:
+    com.example.kb: DEBUG
+    org.springframework.ai: DEBUG
+    org.springframework.security: DEBUG
+    org.testcontainers: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+
+# Rate Limiting Configuration
+rate-limit:
+  ask:
+    capacity: 10
+    refill-rate: 2
+    refill-period: 60 # seconds
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:postgresql://localhost:5433/aiapp_test
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/aiapp
+    username: aiapp
+    password: aiapp
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+          max-tokens: 1000
+      embedding:
+        options:
+          model: text-embedding-3-small
+          dimensions: 1536

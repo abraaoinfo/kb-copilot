@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Consulta - Spring AI RAG</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .answer-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .citation-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            margin: 0.5rem 0;
+            transition: transform 0.2s;
+        }
+        .citation-card:hover {
+            transform: translateX(5px);
+        }
+        .question-display {
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .response-time {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .error-alert {
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>
+                Spring AI RAG
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home me-1"></i>
+                    Início
+                </a>
+                <a class="nav-link" href="/admin">
+                    <i class="fas fa-cog me-1"></i>
+                    Admin
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- Question Display -->
+                <div class="question-display">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Pergunta:
+                    </h5>
+                    <p class="mb-0 mt-2" th:text="${question}">Sua pergunta aqui</p>
+                </div>
+
+                <!-- Error Display -->
+                <div th:if="${error}" class="alert alert-danger error-alert" role="alert">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Erro ao processar pergunta
+                    </h6>
+                    <p th:text="${error}" class="mb-0">Mensagem de erro</p>
+                </div>
+
+                <!-- Answer Display -->
+                <div th:if="${response}" class="card answer-card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Resposta
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="answer-content" th:utext="${response}">
+                            Resposta da IA aqui...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Citations Display -->
+                <div th:if="${citations != null and !citations.empty}" class="card answer-card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-quote-left me-2"></i>
+                            Citações (Top 3)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:each="citation, iterStat : ${citations}" class="citation-card p-3 mb-3">
+                            <div class="citation-header d-flex justify-content-between align-items-start">
+                                <h6 class="mb-1" th:text="${citation.metadata.title}">Título do Documento</h6>
+                                <small class="text-muted" th:text="${citation.metadata.type}">Tipo</small>
+                            </div>
+                            <p class="citation-content mb-0 mt-2" th:text="${#strings.abbreviate(citation.content, 200)}">
+                                Conteúdo abreviado do documento...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Citations Message -->
+                <div th:if="${citations == null or citations.empty}" class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Nenhuma citação específica foi encontrada para esta pergunta.
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-primary me-2">
+                        <i class="fas fa-home me-1"></i>
+                        Nova Consulta
+                    </a>
+                    <button onclick="window.history.back()" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Voltar
+                    </button>
+                </div>
+
+                <!-- Debug Information -->
+                <div class="mt-4 text-center">
+                    <small class="text-muted">
+                        Request ID: <span th:text="${requestId}">N/A</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="fas fa-code me-2"></i>
+                Spring AI RAG - Sistema de Consulta Inteligente
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
